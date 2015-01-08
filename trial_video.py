@@ -43,9 +43,6 @@ class trial_video():
                 self.video_capture = VideoCapture(video_stream)
 
                 """
-                horison is a tupple of two points, who when connected devide
-                the mirror from the side view
-
                 If no horison is given, horison line will partition image
                 horisonaly in half
                 """
@@ -148,14 +145,14 @@ class trial_video():
 
         def set_horizon(self, h):
                 """
-                used to set horison line after initalizaton
+                used to set horizon line after initalizaton
                 """
                 self.horizon = h
 
         def get_raw_frame(self):
 
                 """
-                gets lated read value and unmodified frame
+                gets latest read value and unmodified frame
                 """
                 return self.ret, self.raw_frame
 
