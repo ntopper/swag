@@ -161,7 +161,7 @@ class trial_video():
 
         def apply_brightness_mask(self, top, bottom):
                 """
-                uses brightness threshold and returns a bask of points who 
+                uses brightness threshold and returns a mask of points who 
                 exceed threshold for the top and bottom
                 """
 
@@ -231,7 +231,7 @@ if __name__ == "__main__":
                                 trial.set_thresh_vals(t, b, 10)
 
                         cv2.line(frame, (0, h), (2000, h), (0, 255, 0))
-                        cv2.imshow("test", bot_mask)
+                        cv2.imshow("test", frame)
                         if cv2.waitKey(60) & 0xFF == ord('q'):
                                 break
 
