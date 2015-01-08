@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>224301f3-b8a7-40f8-93ce-bf1dfcbe7768</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>swag.py</StartupFile>
+    <StartupFile>VideoEdit.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +22,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="swag.py" />
+    <Compile Include="VideoEdit.py" />
+    <Compile Include="trial_video.py" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
