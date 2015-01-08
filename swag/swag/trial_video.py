@@ -38,11 +38,15 @@ class trial_video():
                 self.ret = None
                 self.raw_frame = None
 
+                self.fgbg = cv2.BackgroundSubtractorMOG2()
 
                 #initalize capture with video_stream (filename or device number)
                 self.video_capture = VideoCapture(video_stream)
 
                 """
+                horison is a tupple of two points, who when connected devide
+                the mirror from the side view
+
                 If no horison is given, horison line will partition image
                 horisonaly in half
                 """
@@ -69,6 +73,10 @@ class trial_video():
                 self.ret = ret
                 self.raw_frame = frame
 
+                #remove background
+                bg = self.fgbg.apply(frame)
+                frame[where(bg == 0)] = (0,0,0)
+
                 if not ret:#nothing to read, end of file or error
                         return ret, None, None
 
@@ -91,7 +99,7 @@ class trial_video():
 
                 calling this function resets the video caputre to frame zero
 
-                n specifies sample size (frames), 
+                n specifies sample size (frames),
                 default size is 8% of total frame count
                 custom n-value is used for testing
                 """
@@ -145,20 +153,20 @@ class trial_video():
 
         def set_horizon(self, h):
                 """
-                used to set horizon line after initalizaton
+                used to set horison line after initalizaton
                 """
                 self.horizon = h
 
         def get_raw_frame(self):
 
                 """
-                gets latest read value and unmodified frame
+                gets lated read value and unmodified frame
                 """
                 return self.ret, self.raw_frame
 
         def apply_brightness_mask(self, top, bottom):
                 """
-                uses brightness threshold and returns a mask of points who 
+                uses brightness threshold and returns a bask of points who
                 exceed threshold for the top and bottom
                 """
 
@@ -166,10 +174,12 @@ class trial_video():
 
 
         def get(self, prop):
+
                 """
                 used to retireve properties of this trial
                 or properties of the VideoCaputre instance
                 """
+
                 if prop == TRIAL_HORISON:
                         return self.horizon
                 if prop == TRIAL_SIDE_THRESH:
