@@ -201,11 +201,10 @@ def nothing(*k):
         #GIVEN ANYTHING EVER DOES ABSOLUTLY NOTHING
         pass
 
-if __name__ == "__main__":
+debug(vid):
 
-        import sys, cv2
+        import cv2
 
-        vid = sys.argv[1]
         cv2.namedWindow("test")
 
         #trackbars
@@ -244,3 +243,8 @@ if __name__ == "__main__":
 
         trial.release()
         cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+        import sys
+
+        debug(sys.argv[1])
