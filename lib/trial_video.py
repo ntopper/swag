@@ -1,5 +1,6 @@
 from random import sample
 import cv2
+import numpy as np
 
 #TODO fix this, no need to import individualy, py2exe does this for us
 from cv2 import VideoCapture , fillConvexPoly, cvtColor
@@ -41,6 +42,10 @@ class trial_video():
                 self.ret = None
                 self.raw_frame = None
 
+                #last read top and bottom views
+                self.top = None
+                self.bot = None
+
                 self.fgbg = cv2.BackgroundSubtractorMOG2()
 
                 #initalize capture with video_stream (filename or device number)
@@ -76,12 +81,12 @@ class trial_video():
                 self.ret = ret
                 self.raw_frame = frame
 
+                if not ret:#nothing to read, end of file or error
+                        return ret, None, None
+
                 #remove background
                 bg = self.fgbg.apply(frame)
                 frame[where(bg == 0)] = (0,0,0)
-
-                if not ret:#nothing to read, end of file or error
-                        return ret, None, None
 
                 height = self.video_capture.get(CV_CAP_PROP_FRAME_HEIGHT)
                 width =  self.video_capture.get(CV_CAP_PROP_FRAME_WIDTH)
@@ -91,6 +96,10 @@ class trial_video():
 
                 #bottom half of image
                 bottom_mat = frame[self.horizon:height, 0:width]
+
+                #update last read frames
+                self.top = top_mat
+                self.bot = bottom_mat
 
                 return ret, bottom_mat, top_mat
 
@@ -167,14 +176,27 @@ class trial_video():
                 """
                 return self.ret, self.raw_frame
 
-        def apply_brightness_mask(self, top, bottom):
+        def get_bottom_mask(self):
                 """
-                uses brightness threshold and returns a bask of points who
-                exceed threshold for the top and bottom
+                returns the thresholded mask of the last
+                read bottom view
                 """
 
-                return
+                #to catch condition with empty or none array
+                try:
+                        #create mask from greyscale verson of bottom frame
+                        mask = cv2.cvtColor(self.bot, cv2.COLOR_BGR2GRAY)
 
+                        #bring up everything above threshold
+                        mask[where(mask >= self.bot_thresh_val)] = 255
+
+                        #bring everything else down
+                        mask[where(mask < self.bot_thresh_val)] = 0
+
+                        return mask
+
+                except: #return empty array
+                        return np.zeros(0)
 
         def get(self, prop):
 
@@ -210,6 +232,8 @@ def debug(vid):
 
         cv2.namedWindow("test")
 
+        cv2.namedWindow("bottom mask")
+
         #trackbars
         cv2.createTrackbar('horizon','test',0,720,nothing)
         cv2.createTrackbar('top thresh','test',0,100,nothing)
@@ -233,14 +257,15 @@ def debug(vid):
 
                 else:
                         ret, frame = trial.get_raw_frame()
-                        if trial.get(TRIAL_HORISON) != h:
-                                trial.set_horizon(h)
                         if (trial.get(TRIAL_SIDE_THRESH) != t or
-                                        trial.get(TRIAL_BOT_THRESH) != b):
+                                        trial.get(TRIAL_BOT_THRESH) != b or
+                                                trial.get(TRIAL_HORISON) != h):
                                 trial.set_thresh_vals(t, b, 10)
+                                trial.set_horizon(h)
 
                         cv2.line(frame, (0, h), (2000, h), (0, 255, 0))
                         cv2.imshow("test", frame)
+                        cv2.imshow("bottom mask", trial.get_bottom_mask())
                         if cv2.waitKey(60) & 0xFF == ord('q'):
                                 break
 
