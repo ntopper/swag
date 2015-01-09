@@ -1,4 +1,7 @@
 from random import sample
+import cv2
+
+#TODO fix this, no need to import individualy, py2exe does this for us
 from cv2 import VideoCapture , fillConvexPoly, cvtColor
 from cv2.cv import CV_CAP_PROP_FRAME_HEIGHT, CV_CAP_PROP_FRAME_WIDTH
 from cv2.cv import CV_CAP_PROP_POS_FRAMES, CV_CAP_PROP_FRAME_COUNT
@@ -201,7 +204,7 @@ def nothing(*k):
         #GIVEN ANYTHING EVER DOES ABSOLUTLY NOTHING
         pass
 
-debug(vid):
+def debug(vid):
 
         import cv2
 
@@ -245,6 +248,6 @@ debug(vid):
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-        
+
         import sys
         debug(sys.argv[1])
