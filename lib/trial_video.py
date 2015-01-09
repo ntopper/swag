@@ -245,6 +245,6 @@ debug(vid):
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
+        
         import sys
-
         debug(sys.argv[1])
