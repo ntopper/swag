@@ -67,6 +67,27 @@ class trial_video():
                 #set brightness threshold based on random samples
                 self.set_thresh_vals(side_thresh, bot_thresh)
 
+        def resize_frame(self, frame, pixel = None):
+            ''' 
+            resize the frame to specified pixel  area or 1000 if pixel 
+            or to 1000 pixel if no pixel value specified
+            '''
+
+            #maintain aspect ratio of the image = keep image from distorting
+            if not pixel:
+                r = 1000.0 / frame.shape[1]
+                dim = (1000, int(frame.shape[0]*r))
+            else:
+                r =  (float)(pixel) / frame.shape[1]
+                dim = (pixel, int(frame.shape[0]*r))
+
+            #resizing the image 
+            resized = cv2.resize(frame,dim,interpolation=cv2.INTER_AREA)
+
+            return resized
+            
+                
+
         def read(self):
 
                 """
@@ -76,6 +97,10 @@ class trial_video():
 
                 #read the next frame
                 ret, frame = self.video_capture.read()
+
+                #resize frame
+                frame = self.resize_frame(frame)
+
 
                 #untouched frame and read status
                 self.ret = ret
@@ -87,6 +112,8 @@ class trial_video():
                 #remove background
                 bg = self.fgbg.apply(frame)
                 frame[where(bg == 0)] = (0,0,0)
+
+                
 
                 height = self.video_capture.get(CV_CAP_PROP_FRAME_HEIGHT)
                 width =  self.video_capture.get(CV_CAP_PROP_FRAME_WIDTH)
@@ -181,22 +208,25 @@ class trial_video():
                 returns the thresholded mask of the last
                 read bottom view
                 """
-
+   
                 #to catch condition with empty or none array
                 try:
                         #create mask from greyscale verson of bottom frame
                         mask = cv2.cvtColor(self.bot, cv2.COLOR_BGR2GRAY)
 
                         #bring up everything above threshold
-                        mask[where(mask >= self.bot_thresh_val)] = 255
+                        mask[np.where(mask >= self.bot_thresh_val)] = 255
 
                         #bring everything else down
-                        mask[where(mask < self.bot_thresh_val)] = 0
+                        mask[np.where(mask < self.bot_thresh_val)] = 0
+
+                        print "masked"
 
                         return mask
 
-                except: #return empty array
+                except: #return empty arrayq
                         return np.zeros(0)
+  
 
         def get(self, prop):
 
