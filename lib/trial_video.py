@@ -19,17 +19,20 @@ trial = trial_video.trial_video("green_bg.mp4", horizon=200)
 ret, bot, top = trial.read()
 """
 
-#get attribute values
+#get/set attribute values
+#TODO: make a set function
 TRIAL_HORISON = 19
 TRIAL_SIDE_THRESH = 20
 TRIAL_BOT_THRESH = 21
+#TODO implement these
+BLUR_SIGMA = 22
 
 class trial_video():
 
         """represents an instance of a gait tracking trial from a given video
         stream"""
         def __init__ (self, video_stream, horizon = None,
-                        side_thresh = 95, bot_thresh = 95):
+                        side_thresh = 95, bot_thresh = 95, blur = 0):
 
                 """
                 Initalize with a video stream (filename or device number),
@@ -58,6 +61,10 @@ class trial_video():
                 If no horison is given, horison line will partition image
                 horisonaly in half
                 """
+
+
+                #how much to blur?
+                self.blur_sigma = blur
 
                 self.horizon = horizon
                 if not horizon:
@@ -97,12 +104,16 @@ class trial_video():
                 #read the next frame
                 ret, frame = self.video_capture.read()
 
-                #untouched frame and read status
-                self.ret = ret
-                self.raw_frame = frame
-
                 if not ret:#nothing to read, end of file or error
                         return ret, None, None
+
+                #blur image to reduce noise
+                if self.blur_sigma:
+                        frame = cv2.blur(frame,(self.blur_sigma, self.blur_sigma))
+
+                #frame and read status after blur
+                self.ret = ret
+                self.raw_frame = frame
 
                 #remove background
                 bg = self.fgbg.apply(frame)
@@ -142,7 +153,7 @@ class trial_video():
 
                 #get sample frame counts
                 frame_count = int(self.video_capture.get(CV_CAP_PROP_FRAME_COUNT))
-                if not n:#then use default size
+                if not n:#then ue default size
                         n = int(frame_count * .08) #8 percent of total frames
                 sample_index = linspace(1, frame_count - 1, n)
 
@@ -189,6 +200,13 @@ class trial_video():
                 used to set horison line after initalizaton
                 """
                 self.horizon = h
+
+        def set_blur_sigma(self, s):
+                """
+                set the x and y sigma value for the blur,
+                or set to 0 for no blur
+                """
+                self.blur_sigma = s
 
         def get_raw_frame(self):
 
@@ -258,6 +276,8 @@ class trial_video():
                         return self.top_thresh_percent
                 if prop == TRIAL_BOT_THRESH:
                         return self.bot_thresh_percent
+                if prop == BLUR_SIGMA:
+                        return self.blur_sigma
 
                 #otherwise, return property of video capture
                 return self.video_capture.get(prop)
@@ -285,6 +305,7 @@ def debug(vid):
         cv2.createTrackbar('horizon','test',0,720,nothing)
         cv2.createTrackbar('top thresh','test',0,100,nothing)
         cv2.createTrackbar('bot thresh','test',0,100,nothing)
+        cv2.createTrackbar('blur sigma','test',0,30,nothing)
 
         trial = trial_video(vid)
 
@@ -293,6 +314,7 @@ def debug(vid):
                 h = cv2.getTrackbarPos('horizon','test')
                 t = cv2.getTrackbarPos('top thresh','test')
                 b = cv2.getTrackbarPos('bot thresh','test')
+                s = cv2.getTrackbarPos('blur sigma','test')
 
                 ret, top, bot = trial.read()
                 if not ret:#start over
@@ -304,11 +326,17 @@ def debug(vid):
 
                 else:
                         ret, frame = trial.get_raw_frame()
+                        if (trial.get(BLUR_SIGMA) != s):#make a new instance
+                                print "creating new instance with blur sigma " + str(s)
+                                trial.release()
+                                trial = trial_video(vid, blur = s)
+
                         if (trial.get(TRIAL_SIDE_THRESH) != t or
                                         trial.get(TRIAL_BOT_THRESH) != b or
                                                 trial.get(TRIAL_HORISON) != h):
                                 trial.set_thresh_vals(t, b, 10)
                                 trial.set_horizon(h)
+                                trial.set_blur_sigma(s)
 
                         cv2.line(frame, (0, h), (2000, h), (0, 255, 0))
                         cv2.imshow("test", frame)
