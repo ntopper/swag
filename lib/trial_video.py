@@ -68,8 +68,9 @@ class trial_video():
                 self.set_thresh_vals(side_thresh, bot_thresh)
 
         def resize_frame(self, frame, pixel = None):
-            ''' 
-            resize the frame to specified pixel  area or 1000 if pixel 
+
+            '''
+            resize the frame to specified pixel  area or 1000 if pixel
             or to 1000 pixel if no pixel value specified
             '''
 
@@ -81,12 +82,10 @@ class trial_video():
                 r =  (float)(pixel) / frame.shape[1]
                 dim = (pixel, int(frame.shape[0]*r))
 
-            #resizing the image 
+            #resizing the image
             resized = cv2.resize(frame,dim,interpolation=cv2.INTER_AREA)
 
             return resized
-            
-                
 
         def read(self):
 
@@ -97,10 +96,6 @@ class trial_video():
 
                 #read the next frame
                 ret, frame = self.video_capture.read()
-
-                #resize frame
-                frame = self.resize_frame(frame)
-
 
                 #untouched frame and read status
                 self.ret = ret
@@ -113,8 +108,7 @@ class trial_video():
                 bg = self.fgbg.apply(frame)
                 frame[where(bg == 0)] = (0,0,0)
 
-                
-
+                #get width and heigh of of
                 height = self.video_capture.get(CV_CAP_PROP_FRAME_HEIGHT)
                 width =  self.video_capture.get(CV_CAP_PROP_FRAME_WIDTH)
 
@@ -203,12 +197,38 @@ class trial_video():
                 """
                 return self.ret, self.raw_frame
 
+        def get_top_mask(self):
+
+                """
+                returns the thresholded mask of the last
+                read top view, by finding the largest contour in the image.
+                """
+
+                #to catch condition with empty or none array
+                try:
+                        #create mask from greyscale verson of top frame
+                        mask = cv2.cvtColor(self.top, cv2.COLOR_BGR2GRAY)
+
+                        #bring up everything above threshold
+                        mask[np.where(mask >= self.side_thresh_val)] = 255
+
+                        #bring everything else down
+                        mask[np.where(mask < self.side_thresh_val)] = 0
+
+                        return mask
+
+                except: #return empty array
+                        return np.zeros(0)
+
+
+
         def get_bottom_mask(self):
+
                 """
                 returns the thresholded mask of the last
                 read bottom view
                 """
-   
+
                 #to catch condition with empty or none array
                 try:
                         #create mask from greyscale verson of bottom frame
@@ -220,13 +240,10 @@ class trial_video():
                         #bring everything else down
                         mask[np.where(mask < self.bot_thresh_val)] = 0
 
-                        print "masked"
-
                         return mask
 
-                except: #return empty arrayq
+                except: #return empty array
                         return np.zeros(0)
-  
 
         def get(self, prop):
 
@@ -296,6 +313,9 @@ def debug(vid):
                         cv2.line(frame, (0, h), (2000, h), (0, 255, 0))
                         cv2.imshow("test", frame)
                         cv2.imshow("bottom mask", trial.get_bottom_mask())
+                        top_mask = trial.get_top_mask()
+                        if top_mask.any():
+                                cv2.imshow("top mask", trial.get_top_mask())
                         if cv2.waitKey(60) & 0xFF == ord('q'):
                                 break
 
