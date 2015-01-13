@@ -171,15 +171,15 @@ class trial_video():
                         #read top and bottom frame
                         ret, top, bot = self.read()
 
-                        #attempt to calculate np.percentile from top and bottom
+                        #attempt to calculate percentile from top and bottom
                         #append percentile to list
                         if ret:
-                                #to catch the condition np.where the horizon is at
+                                #to catch the condition where the horizon is at
                                 #the top or bottom of the frame
                                 try:
                                         top_val = np.percentile(top, top_thresh_percent)
                                 except:
-                                        top_val = 0
+                                     top_val = 0
                                 try:
                                         bot_val = np.percentile(bot, bot_thresh_percent)
                                 except:
@@ -192,7 +192,7 @@ class trial_video():
                 self.top_thresh_percent = top_thresh_percent
                 self.bot_thresh_percent = bot_thresh_percent
 
-                #set thresh values to np.mean percentile
+                #set thresh values to mean percentile
                 self.side_thresh_val = int(np.mean(top_vals))
                 self.bot_thresh_val = int(np.mean(bot_vals))
 
@@ -239,7 +239,7 @@ class trial_video():
 
                         return mask
 
-                except: #return empty np.array
+                except: #return empty array
                         return np.zeros(0)
 
         def get_bottom_mask(self):
@@ -262,7 +262,7 @@ class trial_video():
 
                         return mask
 
-                except: #return empty np.array
+                except: #return empty array
                         return np.zeros(0)
 
         def get(self, prop):
