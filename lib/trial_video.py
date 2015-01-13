@@ -2,13 +2,6 @@ from random import sample
 import cv2
 import numpy as np
 
-#TODO fix this, no need to import individualy, py2exe does this for us
-from cv2 import VideoCapture , fillConvexPoly, cvtColor
-from cv2.cv import CV_CAP_PROP_FRAME_HEIGHT, CV_CAP_PROP_FRAME_WIDTH
-from cv2.cv import CV_CAP_PROP_POS_FRAMES, CV_CAP_PROP_FRAME_COUNT
-from cv2 import COLOR_BGR2GRAY
-from numpy import array, int32, mean, percentile, linspace, where, zeros
-
 """
 #usage example
 
@@ -20,17 +13,18 @@ ret, bot, top = trial.read()
 """
 
 #get/set attribute values
-#TODO: make a set function
 TRIAL_HORISON = 19
 TRIAL_SIDE_THRESH = 20
 TRIAL_BOT_THRESH = 21
-#TODO implement these
 BLUR_SIGMA = 22
+from cv2.cv import CV_CAP_PROP_FRAME_HEIGHT, CV_CAP_PROP_FRAME_WIDTH
+from cv2.cv import CV_CAP_PROP_POS_FRAMES, CV_CAP_PROP_FRAME_COUNT
 
 class trial_video():
 
         """represents an instance of a gait tracking trial from a given video
         stream"""
+
         def __init__ (self, video_stream, horizon = None,
                         side_thresh = 95, bot_thresh = 95, blur = 0):
 
@@ -52,7 +46,7 @@ class trial_video():
                 self.fgbg = cv2.BackgroundSubtractorMOG2()
 
                 #initalize capture with video_stream (filename or device number)
-                self.video_capture = VideoCapture(video_stream)
+                self.video_capture = cv2.VideoCapture(video_stream)
 
                 """
                 horison is a tupple of two points, who when connected devide
@@ -117,7 +111,7 @@ class trial_video():
 
                 #remove background
                 bg = self.fgbg.apply(frame)
-                frame[where(bg == 0)] = (0,0,0)
+                frame[np.where(bg == 0)] = (0,0,0)
 
                 #get width and heigh of of
                 height = self.video_capture.get(CV_CAP_PROP_FRAME_HEIGHT)
@@ -135,11 +129,12 @@ class trial_video():
 
                 return ret, bottom_mat, top_mat
 
-        def set_thresh_vals(self, top_thresh_percent, bot_thresh_percent, n = None):
+        def set_thresh_vals(self, top_thresh_percent, bot_thresh_percent,
+                n = None, use_percentile = True ):
 
                 """
                 sets the value of the top and bottom threshold values based on
-                given persentiles, using a random sample of video frames
+                given percentiles, using a random sample of video frames
 
                 calling this function resets the video caputre to frame zero
 
@@ -148,6 +143,15 @@ class trial_video():
                 custom n-value is used for testing
                 """
 
+                if not use_percentile:
+                        """
+                        in this case thresh_percent arguments represent
+                        explisit brightness values
+                        """
+
+                        self.side_thresh_val = top_thresh_percent
+                        self.bot_thresh_val = bot_thresh_percent
+
                 #get current frame number, to reset
                 current_frame = int(self.video_capture.get(CV_CAP_PROP_POS_FRAMES))
 
@@ -155,7 +159,7 @@ class trial_video():
                 frame_count = int(self.video_capture.get(CV_CAP_PROP_FRAME_COUNT))
                 if not n:#then ue default size
                         n = int(frame_count * .08) #8 percent of total frames
-                sample_index = linspace(1, frame_count - 1, n)
+                sample_index = np.linspace(1, frame_count - 1, n)
 
                 #calculate mean percentile over n frames
                 bot_vals = []
@@ -167,17 +171,17 @@ class trial_video():
                         #read top and bottom frame
                         ret, top, bot = self.read()
 
-                        #attempt to calculate percentile from top and bottom
-                        #append persentile to list
+                        #attempt to calculate np.percentile from top and bottom
+                        #append percentile to list
                         if ret:
-                                #to catch the condition where the horizon is at
+                                #to catch the condition np.where the horizon is at
                                 #the top or bottom of the frame
                                 try:
-                                        top_val = percentile(top, top_thresh_percent)
+                                        top_val = np.percentile(top, top_thresh_percent)
                                 except:
                                         top_val = 0
                                 try:
-                                        bot_val = percentile(bot, bot_thresh_percent)
+                                        bot_val = np.percentile(bot, bot_thresh_percent)
                                 except:
                                         bot_val = 0
 
@@ -188,9 +192,9 @@ class trial_video():
                 self.top_thresh_percent = top_thresh_percent
                 self.bot_thresh_percent = bot_thresh_percent
 
-                #set thresh values to mean persentile
-                self.side_thresh_val = int(mean(top_vals))
-                self.bot_thresh_val = int(mean(bot_vals))
+                #set thresh values to np.mean percentile
+                self.side_thresh_val = int(np.mean(top_vals))
+                self.bot_thresh_val = int(np.mean(bot_vals))
 
                 #"rewind" video
                 self.video_capture.set(CV_CAP_PROP_POS_FRAMES, current_frame)
@@ -235,10 +239,8 @@ class trial_video():
 
                         return mask
 
-                except: #return empty array
+                except: #return empty np.array
                         return np.zeros(0)
-
-
 
         def get_bottom_mask(self):
 
@@ -260,14 +262,14 @@ class trial_video():
 
                         return mask
 
-                except: #return empty array
+                except: #return empty np.array
                         return np.zeros(0)
 
         def get(self, prop):
 
                 """
                 used to retireve properties of this trial
-                or properties of the VideoCaputre instance
+                or properties of the cv2.VideoCaputre instance
                 """
 
                 if prop == TRIAL_HORISON:
@@ -302,9 +304,9 @@ def debug(vid):
         cv2.namedWindow("bottom mask")
 
         #trackbars
-        cv2.createTrackbar('horizon','test',0,720,nothing)
-        cv2.createTrackbar('top thresh','test',0,100,nothing)
-        cv2.createTrackbar('bot thresh','test',0,100,nothing)
+        cv2.createTrackbar('horizon','test',1,719,nothing)
+        cv2.createTrackbar('top thresh','test',0,1000,nothing)
+        cv2.createTrackbar('bot thresh','test',0,1000,nothing)
         cv2.createTrackbar('blur sigma','test',0,30,nothing)
 
         trial = trial_video(vid)
@@ -312,11 +314,11 @@ def debug(vid):
         while(1):
 
                 h = cv2.getTrackbarPos('horizon','test')
-                t = cv2.getTrackbarPos('top thresh','test')
-                b = cv2.getTrackbarPos('bot thresh','test')
+                t = cv2.getTrackbarPos('top thresh','test') / 10.0
+                b = cv2.getTrackbarPos('bot thresh','test') / 10.0
                 s = cv2.getTrackbarPos('blur sigma','test')
 
-                ret, top, bot = trial.read()
+                ret, bot, top = trial.read()
                 if not ret:#start over
                         #cheating
                         #python does not believe in private properties
@@ -334,21 +336,23 @@ def debug(vid):
                         if (trial.get(TRIAL_SIDE_THRESH) != t or
                                         trial.get(TRIAL_BOT_THRESH) != b or
                                                 trial.get(TRIAL_HORISON) != h):
-                                trial.set_thresh_vals(t, b, 10)
+                                trial.set_thresh_vals(t, b, n = 10)
                                 trial.set_horizon(h)
-                                trial.set_blur_sigma(s)
 
                         cv2.line(frame, (0, h), (2000, h), (0, 255, 0))
                         cv2.imshow("test", frame)
                         cv2.imshow("bottom mask", trial.get_bottom_mask())
+                        cv2.imshow("bottom", bot)
                         top_mask = trial.get_top_mask()
                         if top_mask.any():
                                 cv2.imshow("top mask", trial.get_top_mask())
+                                cv2.imshow("top", top)
                         if cv2.waitKey(60) & 0xFF == ord('q'):
                                 break
 
         trial.release()
         cv2.destroyAllWindows()
+        return trial
 
 if __name__ == "__main__":
 
