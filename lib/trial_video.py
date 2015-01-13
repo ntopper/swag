@@ -352,7 +352,9 @@ def debug(vid):
 
         trial.release()
         cv2.destroyAllWindows()
-        return trial
+
+        return trial_video(vid, horizon = h,
+                 side_thresh = t, bot_thresh = b, blur = s)
 
 if __name__ == "__main__":
 
