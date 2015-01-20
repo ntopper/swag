@@ -65,8 +65,19 @@ class trial_video():
                         #create points from left to right at half of the height
                         self.horizon = self.video_capture.get(CV_CAP_PROP_FRAME_HEIGHT) / 2
 
-                #set brightness threshold based on random samples
-                self.set_thresh_vals(side_thresh, bot_thresh)
+
+                if side_thresh and bot_thresh:
+
+                        #set brightness threshold based on random samples
+                        self.set_thresh_vals(side_thresh, bot_thresh)
+
+                else:
+
+                        #just use 0 (pure black) caller wants to set thresh later
+                        self.side_thresh_val = 0
+                        self.bot_thresh_val = 0
+                        self.top_thresh_percent = 100
+                        self.bot_thresh_percent = 100
 
         def resize_frame(self, frame, pixel = None):
 
@@ -200,6 +211,7 @@ class trial_video():
                 self.video_capture.set(CV_CAP_PROP_POS_FRAMES, current_frame)
 
         def set_horizon(self, h):
+
                 """
                 used to set horison line after initalizaton
                 """
@@ -309,7 +321,7 @@ def debug(vid):
         cv2.createTrackbar('bot thresh','test',0,1000,nothing)
         cv2.createTrackbar('blur sigma','test',0,30,nothing)
 
-        trial = trial_video(vid)
+        trial = trial_video(vid, horizon=None, side_thresh=None, bot_thresh=None )
 
         while(1):
 
