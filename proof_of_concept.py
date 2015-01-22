@@ -14,7 +14,7 @@ out = cv2.VideoWriter('output.avi',fourcc, 30.0, (720,480))
 #we straigt bootstrappin now yo
 
 #change these three lines accoding to the video you use
-trial = trial_video("green_bg_flipped.mp4")
+trial = trial_video("flipped.mp4")
 trial.set_horizon(255)
 trial.set_thresh_vals(98.1, 98.7)
 
