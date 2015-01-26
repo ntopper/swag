@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 class frame():
 
@@ -19,7 +20,7 @@ class frame():
 
                 #calculate the foot positions if valid
                 if valid_flag:
-                        self.calc_feet_postitons(mask)
+                        self.calc_feet_positions(mask)
 
         def calc_critical_points(self, top):
 
@@ -79,7 +80,7 @@ class frame():
                         self.critical_points = [rear_limit, topmost, rightmost]
                         return True
 
-        def calc_feet_positions(mask):
+        def calc_feet_positions(self, mask):
 
                 """
                 calculates the foot positions relitive to eachother
@@ -87,20 +88,26 @@ class frame():
                 foot mask
                 """
 
+                #empty 2x2 array to hold feet positions as they are found
+                self.foot_geom = [ [None,None] , [None,None] ]
+
                 rear_limit, topmost, rightmost = self.critical_points
 
                 #ignore detected values behind rear line by drawing over them
-                h, w, d = top.shape
+                h, w = mask.shape
                 cv2.rectangle(mask, (0, 0), (rear_limit, h), 0, -1)
 
                 #blur, to merge adjsent toes and footpads
+                #TODO: for each footpad on grid, make grid mean of cirrent
+                #centroid and new centroid
                 mask = cv2.blur(mask, (10,10))
 
-                #empty 2x2 array to hold feet positions as they are found
-                self.foot_geom = np.empty([2, 2])
+                #is this still a valid frame?
+                if not mask.any():
+                        return
 
                 #get centroids of all contours
-                contours,hierarchy = cv2.findContours(bot_mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+                contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
                 center = lambda box: (box[0] + box[2]/2, box[1]+ box[3]/2)
                 centers = [center(cv2.boundingRect(cnt)) for cnt in contours]
 
@@ -136,7 +143,6 @@ class frame():
 
                 """returns rear_limit, topmost, rightmost"""
                 return self.critical_points
-
 
         def get_foot_positions(self):
 
