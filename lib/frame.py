@@ -116,7 +116,6 @@ class frame():
 
                 #get centroids of all contours
                 if not mask.any():
-                    self.foot_geom = 0
                     return
 
                 else:
