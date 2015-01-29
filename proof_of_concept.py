@@ -14,7 +14,7 @@ out = cv2.VideoWriter('output.avi',fourcc, 30.0, (720,480))
 #we straigt bootstrappin now yo
 
 #change these three lines accoding to the video you use
-trial = trial_video("flipped.mp4")
+trial = trial_video("flipped3.mp4")
 trial.set_horizon(255)
 trial.set_thresh_vals(98.1, 98.7)
 
@@ -63,7 +63,7 @@ while(1):
             dist = int((rightmost[0] - topmost[0]) / 3.5)
 
             bot_mask = trial.get_bottom_mask()
-
+            
             #is this a valid trial?
             valid = rightmost[0] < width - 10               #rightmost point must be at least 10 px in
             valid = valid and topmost[0] - dist > 10        #so must rear limit

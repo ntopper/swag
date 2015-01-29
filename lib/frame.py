@@ -14,6 +14,12 @@ class frame():
                 initalized with a top frame, bottom frame,
                 and bottom mask array
                 """
+                #empty 2x2 array to hold feet positions as they are found
+                self.foot_geom = np.empty([2, 2])
+
+                self.top = top
+                self.bot = bot
+                self.mask = mask
 
                 #calalculate the critical points
                 valid_flag = self.calc_critical_points(top)
@@ -22,10 +28,12 @@ class frame():
                 if valid_flag:
                         self.calc_feet_positions(mask)
 
+
         def calc_critical_points(self, top):
 
-                """finds the highest point on the rat's body
-                returns Ture only if this is a valid frame
+                """
+                finds the highest point on the rat's body
+                returns True only if this is a valid frame
 
                 frames are valid if the entire rat's body is on screen
                 """
@@ -80,7 +88,7 @@ class frame():
                         self.critical_points = [rear_limit, topmost, rightmost]
                         return True
 
-        def calc_feet_positions(self, mask):
+        def calc_feet_positions(self,mask):
 
                 """
                 calculates the foot positions relitive to eachother
@@ -102,11 +110,18 @@ class frame():
                 #centroid and new centroid
                 mask = cv2.blur(mask, (10,10))
 
-                #is this still a valid frame?
                 if not mask.any():
                         return
-
                 #get centroids of all contours
+                if not mask.any():
+                    self.foot_geom = 0
+                    return
+
+                else:
+                    contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+                    center = lambda box: (box[0] + box[2]/2, box[1]+ box[3]/2)
+                    centers = [center(cv2.boundingRect(cnt)) for cnt in contours]
+
                 contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
                 center = lambda box: (box[0] + box[2]/2, box[1]+ box[3]/2)
                 centers = [center(cv2.boundingRect(cnt)) for cnt in contours]
@@ -176,13 +191,40 @@ def get_next_frame(trial):
 def debug(video):
 
         import trial_video
+        import numpy as np
 
-        trial = trial_video.debug(video)
+
+        trial = trial_video.trial_video(video)
+        trial.set_horizon(245)
+        trial.set_thresh_vals(98.1,98.7)
+
+        raw =trial.get_raw_frame()[1]
+        h = raw.shape[0]
+        w = raw.shape[1]
+        vid = np.zeros((h,w), np.uint8)
+
+        frame_list  = list()
 
         while 1:
-                this_frame = get_next_frame(trial)
-                if not this_frame:
-                        break
+            this_frame = get_next_frame(trial)
+            feet = this_frame.get_foot_positions()
+            frame_list.append(feet)
+            top = trial.get_top_mask()
+            bot= trial.get_bottom_mask()
+
+
+            print top.shape
+            vid[:245,:w] = top
+            vid[245:,:w] = bot
+            cv2.imshow("name",vid)
+
+            if cv2.waitKey(60) & 0xFF == ord('q'):
+                break
+            if not this_frame:
+                    break
+        trial.release()
+        cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
 
