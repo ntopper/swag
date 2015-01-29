@@ -17,10 +17,6 @@ class frame():
                 #empty 2x2 array to hold feet positions as they are found
                 self.foot_geom = np.empty([2, 2])
 
-                self.top = top
-                self.bot = bot
-                self.mask = mask
-
                 #calalculate the critical points
                 valid_flag = self.calc_critical_points(top)
 
@@ -144,8 +140,18 @@ class frame():
                         #is it closer to the left or the right?
                         y = int(left_dist <= right_dist)
 
-                        #store in foot geommetry matrix
-                        self.foot_geom[x][y] = c
+                        #Is there already a foot here?
+                        old_foot = self.foot_geom[x][y]
+
+                        if old_foot:
+                                #if so, this value becomes the mean of
+                                #the old and new feet
+                                print c, old_foot
+                                new_x = np.mean([c[0], old_foot[0]])
+                                new_y = np.mean([c[1], old_foot[1]])
+                        else: new_x , new_y = c
+
+                        self.foot_geom[x][y] = [new_x, new_y]
 
         def get_critical_points(self):
 
@@ -185,39 +191,39 @@ def debug(video):
 
         import trial_video
         import numpy as np
-
+        import itertools
 
         trial = trial_video.trial_video(video)
-        trial.set_horizon(245)
+        trial.set_horizon(255)
         trial.set_thresh_vals(98.1,98.7)
-
-        raw =trial.get_raw_frame()[1]
-        h = raw.shape[0]
-        w = raw.shape[1]
-        vid = np.zeros((h,w), np.uint8)
 
         frame_list  = list()
 
         while 1:
+            ret, raw = trial.get_raw_frame()
+
+            if not ret:
+                break
+
             this_frame = get_next_frame(trial)
             feet = this_frame.get_foot_positions()
-            frame_list.append(feet)
+            #frame_list.append(feet)
             top = trial.get_top_mask()
             bot= trial.get_bottom_mask()
+            for foot in list(itertools.chain(*feet)):
+                if foot:
+                        try:
+                                cv2.circle(raw, (foot[0], foot[1] + 245), 20, (0, 255, 0), 5)
+                        except:
+                                pass
 
+            cv2.imshow("frame",raw)
 
-            print top.shape
-            vid[:245,:w] = top
-            vid[245:,:w] = bot
-            cv2.imshow("name",vid)
-
-            if cv2.waitKey(60) & 0xFF == ord('q'):
+            if cv2.waitKey(0) & 0xFF == ord('q'):
                 break
-            if not this_frame:
-                    break
+
         trial.release()
         cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
 

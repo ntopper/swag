@@ -22,8 +22,10 @@ from cv2.cv import CV_CAP_PROP_POS_FRAMES, CV_CAP_PROP_FRAME_COUNT
 
 class trial_video():
 
-        """represents an instance of a gait tracking trial from a given video
-        stream"""
+        """
+        represents an instance of a gait tracking trial from a given video
+        stream
+        """
 
         def __init__ (self, video_stream, horizon = None,
                         side_thresh = 95, bot_thresh = 95, blur = 0):
@@ -138,7 +140,7 @@ class trial_video():
                 self.top = top_mat
                 self.bot = bottom_mat
 
-                return ret, bottom_mat, top_mat
+                return ret, top_mat, bottom_mat
 
         def set_thresh_vals(self, top_thresh_percent, bot_thresh_percent,
                 n = None, use_percentile = True ):
