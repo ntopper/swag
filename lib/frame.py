@@ -146,7 +146,6 @@ class frame():
                         if old_foot:
                                 #if so, this value becomes the mean of
                                 #the old and new feet
-                                print c, old_foot
                                 new_x = np.mean([c[0], old_foot[0]])
                                 new_y = np.mean([c[1], old_foot[1]])
                         else: new_x , new_y = c
