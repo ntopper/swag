@@ -114,11 +114,7 @@ class frame():
                 if not mask.any():
                         return
 
-                #get centroids of all contours
-                if not mask.any():
-                    return
-
-                else:
+                else: #find all the contours
                     contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
                     center = lambda box: (box[0] + box[2]/2, box[1]+ box[3]/2)
                     centers = [center(cv2.boundingRect(cnt)) for cnt in contours]
