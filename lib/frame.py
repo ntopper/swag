@@ -88,11 +88,7 @@ class frame():
                         self.critical_points = [rear_limit, topmost, rightmost]
                         return True
 
-<<<<<<< HEAD
-        def calc_feet_positions(self, mask):
-=======
         def calc_feet_positions(self,mask):
->>>>>>> a03d2b7443b2f99f253d6e6257160b90686e5fcc
 
                 """
                 calculates the foot positions relitive to eachother
@@ -114,20 +110,10 @@ class frame():
                 #centroid and new centroid
                 mask = cv2.blur(mask, (10,10))
 
-<<<<<<< HEAD
-                if not mask.any():
-                        return
-=======
-<<<<<<< HEAD
                 #is this still a valid frame?
                 if not mask.any():
                         return
 
-                #get centroids of all contours
-=======
-
-
->>>>>>> 59a1fbb8cc6fa1199ee8533be869861bf9c6d6eb
                 #get centroids of all contours
                 if not mask.any():
                     self.foot_geom = 0
@@ -137,11 +123,6 @@ class frame():
                     contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
                     center = lambda box: (box[0] + box[2]/2, box[1]+ box[3]/2)
                     centers = [center(cv2.boundingRect(cnt)) for cnt in contours]
-
->>>>>>> a03d2b7443b2f99f253d6e6257160b90686e5fcc
-                contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-                center = lambda box: (box[0] + box[2]/2, box[1]+ box[3]/2)
-                centers = [center(cv2.boundingRect(cnt)) for cnt in contours]
 
                 #identify feet positions
                 dstk = np.dstack(centers)[0]
