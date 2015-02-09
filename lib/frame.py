@@ -5,7 +5,7 @@ class frame():
 
         """
         represents a singe frame of video
-        colects and stores relevant data
+        collects and stores relevant data
         """
 
         def __init__(self, top, bot, mask):
@@ -18,12 +18,11 @@ class frame():
                 self.foot_geom = np.empty([2, 2])
 
                 #calalculate the critical points
-                valid_flag = self.calc_critical_points(top)
+                self.valid_flag = self.calc_critical_points(top)
 
                 #calculate the foot positions if valid
-                if valid_flag:
+                if self.valid_flag:
                         self.calc_feet_positions(mask)
-
 
         def calc_critical_points(self, top):
 
@@ -166,6 +165,10 @@ class frame():
                 """
                 return self.foot_geom
 
+        def get_valid_flag(self):
+            #return if frame is valid
+            return self.valid_flag
+
 def get_next_frame(trial):
 
 
@@ -198,6 +201,7 @@ def debug(video):
 
         frame_list  = list()
 
+
         while 1:
             ret, raw = trial.get_raw_frame()
 
@@ -218,7 +222,7 @@ def debug(video):
 
             cv2.imshow("frame",raw)
 
-            if cv2.waitKey(0) & 0xFF == ord('q'):
+            if cv2.waitKey(60) & 0xFF == ord('q'):
                 break
 
         trial.release()
