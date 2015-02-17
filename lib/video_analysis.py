@@ -4,48 +4,58 @@ from steps import steps as s
 import itertools
 import numpy as np
 import cv2
-
+from PIL import Image, ImageTk
+import Tkinter as tk
+from cv2.cv import CV_CAP_PROP_POS_FRAMES, CV_CAP_PROP_FRAME_COUNT
 class video_analysis():
     """
     analyze video using frame and steps classes
     """
-    def __init__(self,video,top,bot,hor):
+    def __init__(self,video,top,bot,hor,cap,root,canvas):
+        #create the GUI
+        self.trial = trial_video(video)
+        self.count = self.trial.get(CV_CAP_PROP_FRAME_COUNT)
+        print "Count %02d" % self.count
+        self.trial.set_horizon(hor)
+        self.trial.set_thresh_vals(top,bot)
+        self.cap = cap 
+        self.root = root
+        self.canvas =canvas
+        self.frame_list  = list()
+        self.increment = 0
+
+
         
-        trial = trial_video(video)
-        trial.set_horizon(hor)
-        trial.set_thresh_vals(top,bot)
 
-        print "i made it past trial_video"
 
-        frame_list = []
-        
-
-        while 1:
-            ret, raw = trial.get_raw_frame()
-        
-            cv2.imshow("frame",raw[1])
-            if not ret:
-                break
-
-            this_frame = frame.get_next_frame(trial)
-            try:
-
-                if this_frame.get_valid_flag() :
-                    feet = this_frame.get_foot_positions()
-                    frame_list.append(feet)
-            except:
-                break
-
+    def update_video(self):
+        raw = self.trial.get_raw_frame() 
+        self.bgr = cv2.cvtColor( raw[1], cv2.COLOR_RGB2BGR)
+        self.a = Image.fromarray(self.bgr)
+        self.b = ImageTk.PhotoImage(image =self.a)
+        self.canvas.create_image(0,0,image=self.b,anchor=tk.NW)
+        self.increment +=1
+        self.root.update()
+        self.this_frame = frame.get_next_frame(self.trial)
+        try:
+            if(self.this_frame.get_valid_flag()):
+                self.feet = self.this_frame.get_foot_positions()
+                self.frame_list.append(self.feet)
             
+        except:
+            pass
+        self.dostuff()
+        self.root.after(33,self.update_video)
+       
 
-        list_size = len(frame_list)
-        print " i got past this"
-        self.steps = s(frame_list,list_size,29)
     def dostuff(self):
-
-        #steps.get_FR()
-        self.steps.printInfo()
-        #self.steps.plot_paw()
+        if self.increment  >= self.count:
+            list_size = len(self.frame_list)
+            print " i got past this"
+            self.steps = s(self.frame_list,list_size,29)
+            #steps.get_FR()
+            self.steps.printInfo()
+            self.steps.plot_paw()
 
 
 

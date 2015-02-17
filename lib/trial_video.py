@@ -19,6 +19,7 @@ TRIAL_BOT_THRESH = 21
 BLUR_SIGMA = 22
 from cv2.cv import CV_CAP_PROP_FRAME_HEIGHT, CV_CAP_PROP_FRAME_WIDTH
 from cv2.cv import CV_CAP_PROP_POS_FRAMES, CV_CAP_PROP_FRAME_COUNT
+from cv2.cv import CV_CAP_PROP_POS_FRAMES
 
 class trial_video():
 
@@ -87,7 +88,6 @@ class trial_video():
             resize the frame to specified pixel  area or 1000 if pixel
             or to 1000 pixel if no pixel value specified
             '''
-
             #maintain aspect ratio of the image = keep image from distorting
             if not pixel:
                 r = 1000.0 / frame.shape[1]
@@ -297,6 +297,13 @@ class trial_video():
 
                 #otherwise, return property of video capture
                 return self.video_capture.get(prop)
+
+        def set(self,prop, value=0):
+
+            if prop == CV_CAP_PROP_POS_FRAMES:
+                self.video_capture.set(cv2.cv.CV_CAP_PROP_POS_FRAMES,value)
+
+            return self.video_capture.set(prop, value)
 
         def release(self):
                 """

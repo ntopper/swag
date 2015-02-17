@@ -1,12 +1,20 @@
 #!/usr/bin/env python
 import lib.frame as f
 import lib.video_analysis as va
+import cv2
+import Tkinter as tk
+import testGUI
 
 
 video = "flipped3.mp4" 
 #f.debug(video)
-v = va.video_analysis(video,98.1,98.7,245)
-v.dostuff()
+
+root = tk.Tk()
+root.wm_title("SW.A.G")
+x = testGUI.GUI(video,98.1,98.7,245,root)
+root.after(0,x.update_main)
+x.dostuff()
+root.mainloop()
 
 
 

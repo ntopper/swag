@@ -246,6 +246,7 @@ class steps():
 
     def plot_paw(self,linewidth=10):
         #draw a line on a plane representing the paw
+        print" Starting the plot..."
         FR = np.array(self.FR_list)
         FL = np.array(self.FL_list)
         BR = np.array(self.BR_list)
@@ -273,8 +274,14 @@ class steps():
         
         legend = ax.legend(loc='upper right',shadow=True)
         axis = ax.axis([0,self.seconds,0,5])
+        title = ax.set_title('Gait Plot')
+        x_lable = ax.set_xlabel('seconds')
+        y_label = ax.set_ylabel('Paw')
         
-        plt.show()
+        #plt.show()
+        print "finished...."
+        return fig
+
         
     def analyze(self):
         #initialize analysis of paw frame data 
@@ -294,6 +301,7 @@ class steps():
         total_steps = (self.front_left_steps + self.front_right_steps +
                       self.back_left_steps + self.back_right_steps)
 
+
         self.cadence = total_steps / self.seconds
 
     def set_variability(self):
@@ -307,18 +315,22 @@ class steps():
         BR = np.delete(BR,0)
         BL = np.delete(BL,0)
 
-        self.FR_var = np.std(FR)
-        self.FL_var = np.std(FL)
-        self.BR_var = np.std(BR)
-        self.BL_var = np.std(BL)
+        self.FR_var = float(np.std(FR))
+        self.FL_var = float(np.std(FL))
+        self.BR_var = float(np.std(BR))
+        self.BL_var = float(np.std(BL))
 
     def printInfo(self):
 
-                
-        print" Cadence: %02d " % self.cadence
+        print"Seconds: %02d "  % self.seconds        
+        print"Cadence: %02d " % self.cadence
 
-        print "Variability"
-        print self.FR_var
-        print self.FL_var
-        print self.BR_var
-        print self.BL_var
+        print "FR Var: %02d" % self.FR_var
+        print "FL Var: %02d" % self.FL_var
+        print "BR Var: %02d" % self.BR_var
+        print "BL Var: %02d" % self.BL_var
+
+    def get_variable(self):
+        #set variable of steps
+
+        return self.cadence, self.FL_var, self.FL_var,self.BR_var,self.BL_var
