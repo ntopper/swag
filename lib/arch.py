@@ -40,7 +40,6 @@ def isolate_back(frame, mask):
     returns the isolated points along the curve of the rats back
     returns null if there is no data
     """
-
     
     if not frame:
         return
