@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from arch import get_arch_data
 
 class frame():
 
@@ -150,6 +151,17 @@ class frame():
                         else: new_x , new_y = c
 
                         self.foot_geom[x][y] = [new_x, new_y]
+
+        def calc_arch_data(self, top_mask):
+        
+            """
+            calculates the 2nd degree polinomial coefficents
+            and the curviture of the rat's back
+            coeffs are an empty array and cuveiture is null if there is no data
+            """
+            
+            self.arch_polyfit, self.arch_K = get_arch_data(self, top_mask)
+            
 
         def get_critical_points(self):
 
