@@ -17,6 +17,7 @@ TRIAL_HORISON = 19
 TRIAL_SIDE_THRESH = 20
 TRIAL_BOT_THRESH = 21
 BLUR_SIGMA = 22
+
 from cv2.cv import CV_CAP_PROP_FRAME_HEIGHT, CV_CAP_PROP_FRAME_WIDTH
 from cv2.cv import CV_CAP_PROP_POS_FRAMES, CV_CAP_PROP_FRAME_COUNT
 from cv2.cv import CV_CAP_PROP_POS_FRAMES
@@ -289,22 +290,30 @@ class trial_video():
                 if prop == TRIAL_HORISON:
                         return self.horizon
                 if prop == TRIAL_SIDE_THRESH:
-                        return self.top_thresh_percent
+                        #return self.top_thresh_percent
+                        return self.side_thresh_val
                 if prop == TRIAL_BOT_THRESH:
-                        return self.bot_thresh_percent
+                        #return self.bot_thresh_percent
+                        return self.bot_thresh_val
                 if prop == BLUR_SIGMA:
                         return self.blur_sigma
 
                 #otherwise, return property of video capture
                 return self.video_capture.get(prop)
 
-        def set(self,prop, value=0):
+        def set(self,prop, value):
 
             if prop == CV_CAP_PROP_POS_FRAMES:
                 self.video_capture.set(cv2.cv.CV_CAP_PROP_POS_FRAMES,value)
-
-            return self.video_capture.set(prop, value)
-
+            if prop == TRIAL_HORISON:
+                self.horizon = value
+            if prop == TRIAL_SIDE_THRESH:
+                self.side_thresh_val = value
+            if prop == TRIAL_BOT_THRESH:
+                self.bot_thresh_val = value
+            if prop == BLUR_SIGMA:
+                self.blur_sigma = value
+            
         def release(self):
                 """
                 closes all open files

@@ -3,14 +3,14 @@ import lib.frame as f
 import lib.video_analysis as va
 import cv2
 import Tkinter as tk
-import testGUI
+from lib.testGUI import testGUI
 
 
 video = "flipped3.mp4" 
 #f.debug(video)
 
 root = tk.Tk()
-root.wm_title("SW.A.G")
+root.wm_title("Gaitor")
 x = testGUI.GUI(video,98.1,98.7,245,root)
 root.after(0,x.update_main)
 x.dostuff()
