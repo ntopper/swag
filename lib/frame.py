@@ -9,17 +9,21 @@ class frame():
         collects and stores relevant data
         """
 
-        def __init__(self, top, bot, mask):
+        def __init__(self, top, bot, mask, use_profile=True):
 
                 """
                 initalized with a top frame, bottom frame,
                 and bottom mask array
+                
+                if not "use_profile", then the frame is always valid
                 """
+                self.use_profile = use_profile
+                
                 #empty 2x2 array to hold feet positions as they are found
                 self.foot_geom = np.empty([2, 2])
 
                 #calalculate the critical points
-                self.valid_flag = self.calc_critical_points(top)
+                self.valid_flag = self.calc_critical_points(top) or not use_profile
 
                 #calculate the foot positions if valid
                 if self.valid_flag:
@@ -98,8 +102,10 @@ class frame():
                 rear_limit, topmost, rightmost = self.critical_points
 
                 #ignore detected values behind rear line by drawing over them
-                h, w = mask.shape
-                cv2.rectangle(mask, (0, 0), (rear_limit, h), 0, -1)
+                #unless not use_profile
+                if self.use_profile:
+                    h, w = mask.shape
+                    cv2.rectangle(mask, (0, 0), (rear_limit, h), 0, -1)
 
                 #blur, to merge adjsent toes and footpads
                 #TODO: for each footpad on grid, make grid mean of cirrent
@@ -153,13 +159,13 @@ class frame():
                         self.foot_geom[x][y] = [new_x, new_y]
 
         def calc_arch_data(self, top_mask):
-        
+
             """
             calculates the 2nd degree polinomial coefficents
             and the curviture of the rat's back
             coeffs are an empty array and cuveiture is null if there is no data
             """
-            
+
             self.arch_polyfit, self.arch_K = get_arch_data(self, top_mask)
             
 
